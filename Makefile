@@ -3,6 +3,8 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=ups_monitor
 PKG_VERSION:=0.1
 PKG_RELEASE:=1
+PKG_MAINTAINER:=sndnvaps <https://github.com/sndnvaps/ups_monitor>
+PKG_LICENSE:=AGPL-3.0
 
 include $(INCLUDE_DIR)/package.mk
 
