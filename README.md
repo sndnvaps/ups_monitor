@@ -8,7 +8,11 @@
 # connect 
     Raspberry Pi I2C interface
 
-# how to build 
+# depend
+   before build the ups_monitor project, you need to build libwiringPi first
+   https://github.com/sndnvaps/wiringPi-4-openwrt
+
+# how to build
  1. clone this repo to openwrt-sdk folder
     git clone git@github.com:sndnvaps/ups_monitor.git package/utils/ups_monitor
  2. build in the openwrt-sdk top dir
