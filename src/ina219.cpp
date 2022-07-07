@@ -85,7 +85,7 @@ private:
     int i2c_addr;
     int i2c_fd;
     double current_lsb;
-    double cal_value;
+    int cal_value;
     double power_lsb;
     int bus_voltage_range;
     int gain;
@@ -100,7 +100,7 @@ INA219::INA219(int addr)
 {
     i2c_addr = addr;
     current_lsb = 0.0;
-    cal_value = 0.0;
+    cal_value = 0;
     power_lsb = 0.0;
     wiringPiSetup(); //初始化wiringPi库
     i2c_fd = wiringPiI2CSetup(i2c_addr);
@@ -148,7 +148,7 @@ void INA219::set_calibration_32V_2A()
     # Cal = trunc (0.04096 / (Current_LSB * RSHUNT))
     # Cal = 4096 (0x1000)
     */
-    this->cal_value = 4096.0;
+    this->cal_value = 4096;
     /*
     # 6. Calculate the power LSB
     # PowerLSB = 20 * CurrentLSB
@@ -183,27 +183,27 @@ void INA219::set_calibration_32V_2A()
 
     # Set Calibration register to 'Cal' calculated above
     */
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CALIBRATION, this->cal_value);
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CALIBRATION), this->cal_value);
     // Set Config register to take into account the settings above
-    this->bus_voltage_range = (int)BusVoltageRange::RANGE_32V;
-    this->gain = (int)Gain::DIV_8_320MV;
-    this->bus_adc_resolution = (int)ADCResolution::ADCRES_12BIT_32S;
-    this->shunt_adc_resolution = (int)ADCResolution::ADCRES_12BIT_32S;
-    this->mode = (int)Mode::SANDBVOLT_CONTINUOUS;
+    this->bus_voltage_range = static_cast<int>(BusVoltageRange::RANGE_32V);
+    this->gain = static_cast<int>(Gain::DIV_8_320MV);
+    this->bus_adc_resolution = static_cast<int>(ADCResolution::ADCRES_12BIT_32S);
+    this->shunt_adc_resolution = static_cast<int>(ADCResolution::ADCRES_12BIT_32S);
+    this->mode = static_cast<int>(Mode::SANDBVOLT_CONTINUOUS);
     this->config = (this->bus_voltage_range << 13 |
-                   this->gain << 11 |
-                   this->bus_adc_resolution << 7 |
-                   this->shunt_adc_resolution << 3 |
-                   this->mode);
+                    this->gain << 11 |
+                    this->bus_adc_resolution << 7 |
+                    this->shunt_adc_resolution << 3 |
+                    this->mode);
 
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CONFIG, this->config);
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CONFIG), this->config);
 }
 
 double INA219::getShuntVoltage_mV()
 {
     int value;
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CALIBRATION, this->cal_value);
-    value = wiringPiI2CReadReg8(i2c_fd, (int)REG_CMD::REG_SHUNTVOLTAGE);
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CALIBRATION), this->cal_value);
+    value = wiringPiI2CReadReg16(i2c_fd, static_cast<int>(REG_CMD::REG_SHUNTVOLTAGE));
     if (value > 32767)
     {
         value -= 65535;
@@ -214,16 +214,17 @@ double INA219::getShuntVoltage_mV()
 double INA219::getBusVoltage_V()
 {
     int value;
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CALIBRATION, this->cal_value);
-    value = wiringPiI2CReadReg8(i2c_fd, (int)REG_CMD::REG_BUSVOLTAGE);
-    return ((value >> 3) * 0.004);
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CALIBRATION), this->cal_value);
+    value = wiringPiI2CReadReg16(i2c_fd, static_cast<int>(REG_CMD::REG_BUSVOLTAGE));
+    //return ((value >> 3) * 0.004);
+    return (value * 0.001);
 }
 
 double INA219::getCurrent_mA()
 {
     int value;
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CALIBRATION, this->cal_value);
-    value = wiringPiI2CReadReg8(i2c_fd, (int)REG_CMD::REG_CURRENT);
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CALIBRATION), this->cal_value);
+    value = wiringPiI2CReadReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CURRENT));
     if (value > 32767)
     {
         value -= 65535;
@@ -234,8 +235,11 @@ double INA219::getCurrent_mA()
 double INA219::getPower_W()
 {
     int value;
-    wiringPiI2CWriteReg8(i2c_fd, (int)REG_CMD::REG_CALIBRATION, this->cal_value);
-    value = wiringPiI2CReadReg8(i2c_fd, (int)REG_CMD::REG_POWER);
+
+    wiringPiI2CWriteReg16(i2c_fd, static_cast<int>(REG_CMD::REG_CALIBRATION), this->cal_value);
+    // wiringPiI2CWriteReg16(i2c_fd, REG_CMD_CAL, this->cal_value);
+
+    value = wiringPiI2CReadReg16(i2c_fd, static_cast<int>(REG_CMD::REG_POWER));
     if (value > 32767)
     {
         value -= 65535;
@@ -267,7 +271,8 @@ int main()
         {
             persent = 0.0;
         }
-        cout << "Load voltage: " << bus_voltage << "V" << endl;
+        cout << "Load voltage: " << bus_voltage  << "V" << endl;
+        cout << "Shunt voltage: " << shunt_voltage << "V" << endl;
         cout << "Current: " << (current / 1000.0) << "A" << endl;
         cout << "Power: " << power << "W" << endl;
         cout << "Persent: " << persent << "%" << endl;
