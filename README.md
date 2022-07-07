@@ -5,8 +5,24 @@
 
 ![UPS-HAT](https://www.waveshare.net/photo/accBoard/UPS-HAT/UPS-HAT-1.jpg)
 
-# connect 
+# connect (openwrt raspbeery pi需要先安装i2c内核驱动的支持)
     Raspberry Pi I2C interface
+
+# hack （如果获取ups连接到树莓派后，用的是哪个地址）
+```bash
+opkg install  i2c-tools
+
+i2cdetect -y 1
+```
+![ups-hat-i2c-address](https://www.waveshare.net/w/upload/f/f1/UPS_HAT_I2C.png)
+
+默认设置的地址为 0x42(需要修改 [src/ina219.cpp#L254](src/ina219.cpp#L254))
+```cpp
+    double persent;
+    // init
+    INA219 ina219(0x42); //修改0x42为你用自己的ups设置的i2c地址
+    while (1)
+```
 
 # depend
    before build the ups_monitor project, you need to build libwiringPi first
@@ -27,10 +43,14 @@
     opkg install /tmp/ups_monitor_0.1-1_aarch64_cortex-a53.ipk
 
 # wiki
-	https://www.waveshare.net/wiki/UPS_HAT
+## ups-hat介绍文档
+https://www.waveshare.net/wiki/UPS_HAT
 
+## Raspberry Pi OpenWRT打开 I2C支持 
+https://www.icode9.com/content-4-1367375.html
+    
 # python support from waveshare
-	https://www.waveshare.net/w/upload/d/d9/UPS_HAT.7z
+https://www.waveshare.net/w/upload/d/d9/UPS_HAT.7z
 
 
 # 声明
@@ -38,4 +58,3 @@
 
  编译的时候，需要<strong>C++11</strong>支持
 
- 测试于openwrt-sdk-21.02.3 raspbery pi
