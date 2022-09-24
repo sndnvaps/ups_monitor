@@ -12,7 +12,7 @@ cargo build --release --target=aarch64-unknown-linux-musl
 
 ```
 F:\rust\ups_monitor_rust>pscp -scp F:\rust\ups_monitor_rust\target\
-aarch-unknown-linux-musl\release\ups_monitor_rust root@192.168.xx.110:/usr/bin/
+aarch64-unknown-linux-musl\release\ups_monitor_rust root@192.168.xx.110:/usr/bin/
 ```
 
 ## test it on the pi
