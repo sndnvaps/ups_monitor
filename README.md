@@ -1,4 +1,6 @@
-# ups_monitor for raspberry pi 
+# ups_monitor for raspberry pi
+
+![UPS_HAT](./360px-UPS-HAT-1.jpg)
 
 ## before build it ,need to install aarch64-none-linux-gnu to system
 
@@ -24,25 +26,25 @@ root@Rpi:/usr/bin# ups_monitor_rust
 output just look like
 
 ```json
-Debug: PowerMonitor 
+Debug: PowerMonitor
 {
         Voltage = 8.204V,
         Shunt_Voltage = 528µV,
         Current = 1.730A,
-        Power = 711mW 
+        Power = 711mW
 }
-Debug: PowerMonitor 
+Debug: PowerMonitor
 {
         Voltage = 8.204V,
         Shunt_Voltage = 525µV,
         Current = 1.720A,
-        Power = 706mW 
+        Power = 706mW
 }
-Debug: PowerMonitor 
+Debug: PowerMonitor
 {
         Voltage = 8.204V,
         Shunt_Voltage = 545µV,
         Current = 1.786A,
-        Power = 706mW 
+        Power = 706mW
 }
 ```
